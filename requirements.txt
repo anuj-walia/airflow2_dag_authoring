@@ -1,1 +1,5 @@
+airflow-dbt-python==3.1.0
+duckdb==1.4.1
+dbt-duckdb
+
 # Astro Runtime includes the following pre-installed providers packages: https://www.astronomer.io/docs/astro/runtime-image-architecture#provider-packages
