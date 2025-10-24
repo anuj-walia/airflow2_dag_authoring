@@ -1,0 +1,33 @@
+name: 'barclays_glue_dbt'
+version: '1.0.0'
+config-version: 2
+profile: 'barclays_glue_dbt'
+
+# Paths
+model-paths: ["models"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+
+# Global model configs
+models:
+  barclays_glue_dbt:
+    +materialized: table
+    +file_format: parquet
+    +schema: barclays_glue_dbt
+    stg_customers:
+      +materialized: table
+    stg_orders:
+      +materialized: table
+
+seeds:
+  barclays_glue_dbt:
+    +file_format: parquet
+    +quote_columns: true
+
+# Enable docs (optional future use)
+vars: {}

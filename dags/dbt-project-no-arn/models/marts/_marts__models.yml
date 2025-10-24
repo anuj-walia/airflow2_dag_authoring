@@ -1,0 +1,14 @@
+version: 2
+models:
+  - name: customer_summary
+    description: "Simplified customer mart duplicating staging data"
+    columns:
+      - name: customer_id
+        description: "Unique identifier for customers"
+        tests: [unique, not_null]
+      - name: customer_name
+        description: "Customer full name"
+      - name: email
+        description: "Customer email address"
+      - name: mart_loaded_at
+        description: "Timestamp when mart row was produced"
