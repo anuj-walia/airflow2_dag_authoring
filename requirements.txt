@@ -2,6 +2,7 @@
 duckdb==1.4.1
 astronomer-cosmos
 apache-airflow-providers-common-sql
+dbt-athena-community
 
 
 # Astro Runtime includes the following pre-installed providers packages: https://www.astronomer.io/docs/astro/runtime-image-architecture#provider-packages

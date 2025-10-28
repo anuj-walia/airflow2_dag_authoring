@@ -19,15 +19,11 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 import os
-import subprocess
 
-from airflow.example_dags.example_latest_only import task1
 from cosmos import DbtTaskGroup, ProjectConfig, ProfileConfig, ExecutionConfig, RenderConfig
-from cosmos.constants import TestBehavior, ExecutionMode, LoadMode
+from cosmos.constants import ExecutionMode, LoadMode
 
-from airflow import DAG
-from airflow.decorators import task,dag
-from airflow.operators.python import PythonOperator
+from airflow.decorators import task, dag
 from airflow.models import Variable
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from pathlib import Path
@@ -37,7 +33,7 @@ DBT_EXECUTABLE_PATH = f"{os.environ.get('AIRFLOW_HOME', '/usr/local/airflow')}/d
 
 DBT_PROJECT_PATH = "/usr/local/airflow/dags/dbt-project-no-arn"  # container path
 DBT_PROFILES_PATH = "/usr/local/airflow/dags/dbt-project-no-arn"
-PROFILE_NAME = "barclays_glue_dbt"
+PROFILE_NAME = "optm_eu_reader"
 AWS_REGION = Variable.get("dbt_region", default_var="us-east-2")
 TARGET_NAME = "dev"
 # ---------------------------------------------------------------------------
@@ -127,6 +123,10 @@ render_cfg = RenderConfig(
     # dbt_executable_path=DBT_EXECUTABLE_PATH,  # <-- important
 )
 
+def get_env_with_aws_creds(**context):
+    """Get environment with AWS credentials for each task execution."""
+    return _prepare_env(context)
+
 @dag(
     start_date=datetime(2025, 10, 1),
     schedule=None,
@@ -134,29 +134,39 @@ render_cfg = RenderConfig(
     max_active_runs=1,
     max_active_tasks=1,
     default_args = {
-        'owner': 'Sudo',
-        'on_execute_callback': _prepare_env},  # <-- This is the key
-    tags=["dbt", "glue", "assume-role", "minimal"]
+        'owner': 'Anuj3',
+    },
+    tags=["dbt", "athena", "optm_eu", "country", "reader"]
 )
-def trial_no_arn_dbt_task_group() :
+def optm_eu_country_reader_task_group():
     @task
     def start():
         print("**********************************starting task***************************************************")
         return "Starting task"
-
-    dbt_task_group = DbtTaskGroup( project_config=project_cfg,
-    profile_config=profile_cfg, # or profile_mapping=profile_mapping,
-    execution_config=exec_cfg,
-    operator_args={"dbt_executable_path": DBT_EXECUTABLE_PATH,"env": _prepare_env,},)
-
 
     @task
     def end():
         print("**********************************finishing task***************************************************")
         return "Finishing task"
 
-    start()>>dbt_task_group>>end()
+    dbt_task_group = DbtTaskGroup(
+        project_config=project_cfg,
+        profile_config=profile_cfg,
+        execution_config=exec_cfg,
+        render_config=render_cfg,
+        operator_args={
+            "dbt_executable_path": DBT_EXECUTABLE_PATH,
+            "env": get_env_with_aws_creds,
+            "emit_datasets": False,  # Disable OpenLineage dataset emission
+        },
+    )
 
-trial_no_arn_dbt_task_group()
+    start_task = start()
+    end_task = end()
+
+    start_task >> dbt_task_group >> end_task
+
+
+optm_eu_country_reader_task_group()
 if __name__ == "__main__":
-    trial_no_arn_dbt_task_group().test(execution_date=datetime.today())
+    optm_eu_country_reader_task_group().test(execution_date=datetime.today())

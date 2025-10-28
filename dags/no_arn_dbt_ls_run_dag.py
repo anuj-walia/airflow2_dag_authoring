@@ -19,11 +19,8 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 import os
-import subprocess
 from cosmos import DbtDag, ProjectConfig, ProfileConfig, ExecutionConfig, RenderConfig
-from cosmos.constants import TestBehavior, ExecutionMode, LoadMode
-from cosmos import DbtDag
-from airflow.operators.python import PythonOperator
+from cosmos.constants import ExecutionMode, LoadMode
 from airflow.models import Variable
 from airflow.providers.amazon.aws.hooks.base_aws import AwsBaseHook
 from pathlib import Path
@@ -33,7 +30,7 @@ DBT_EXECUTABLE_PATH = f"{os.environ.get('AIRFLOW_HOME', '/usr/local/airflow')}/d
 
 DBT_PROJECT_PATH = "/usr/local/airflow/dags/dbt-project-no-arn"  # container path
 DBT_PROFILES_PATH = "/usr/local/airflow/dags/dbt-project-no-arn"
-PROFILE_NAME = "barclays_glue_dbt"
+PROFILE_NAME = "optm_eu_reader"
 AWS_REGION = Variable.get("dbt_region", default_var="us-east-2")
 TARGET_NAME = "dev"
 # ---------------------------------------------------------------------------
@@ -128,13 +125,15 @@ def get_env_with_aws_creds(**context):
     return _prepare_env(context)
 
 dag = DbtDag(
-    dag_id='trial_no_arn_dbt_dag',
+    dag_id='optm_eu_country_reader_dag',
     project_config=project_cfg,
-    profile_config=profile_cfg, # or profile_mapping=profile_mapping,
+    profile_config=profile_cfg,
     execution_config=exec_cfg,
+    render_config=render_cfg,
     operator_args={
         "dbt_executable_path": DBT_EXECUTABLE_PATH,
-        "env": get_env_with_aws_creds,  # Pass environment function
+        "env": get_env_with_aws_creds,
+        "emit_datasets": False,  # Disable OpenLineage dataset emission
     },
     start_date=datetime(2025, 10, 1),
     schedule=None,
@@ -142,9 +141,9 @@ dag = DbtDag(
     max_active_runs=1,
     max_active_tasks=1,
     default_args = {
-        'owner': 'Sudo',
+        'owner': 'Anuj2',
     },
-    tags=["dbt", "glue", "assume-role", "minimal"]
+    tags=["dbt", "glue", "optm_eu", "country", "reader"]
 )
 
 if __name__ == "__main__":
