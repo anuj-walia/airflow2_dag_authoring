@@ -123,20 +123,27 @@ render_cfg = RenderConfig(
     # dbt_executable_path=DBT_EXECUTABLE_PATH,  # <-- important
 )
 
+def get_env_with_aws_creds(**context):
+    """Get environment with AWS credentials for each task execution."""
+    return _prepare_env(context)
+
 dag = DbtDag(
     dag_id='trial_no_arn_dbt_dag',
     project_config=project_cfg,
     profile_config=profile_cfg, # or profile_mapping=profile_mapping,
     execution_config=exec_cfg,
-    operator_args={"dbt_executable_path": DBT_EXECUTABLE_PATH},
+    operator_args={
+        "dbt_executable_path": DBT_EXECUTABLE_PATH,
+        "env": get_env_with_aws_creds,  # Pass environment function
+    },
     start_date=datetime(2025, 10, 1),
     schedule=None,
     catchup=False,
     max_active_runs=1,
     max_active_tasks=1,
     default_args = {
-    'owner': 'Sudo',
-    'on_execute_callback': _prepare_env},  # <-- This is the key
+        'owner': 'Sudo',
+    },
     tags=["dbt", "glue", "assume-role", "minimal"]
 )
 
