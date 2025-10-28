@@ -5,7 +5,7 @@ barclays_glue_dbt:
       type: glue
       region: us-east-2
       schema: "barclays_glue_dbt"
-      location: "s3://assumerole-s3-glue-dbt-athena/dbt"
+      location: "s3://assumerole-s3-glue-dbt-athena/dbt/barclays_glue_dbt/"
       database: "barclays_glue_dbt"
       glue_version: "5.0"
       worker_type: G.1X
