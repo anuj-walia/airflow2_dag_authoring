@@ -13,3 +13,5 @@ airflow.db
 .qodo
 .idea
 backup
+*.log
+tmp/

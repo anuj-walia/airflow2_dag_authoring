@@ -6,7 +6,7 @@ barclays_glue_dbt:
       region: us-east-2
       schema: "barclays_glue_dbt"
       location: "s3://assumerole-s3-glue-dbt-athena/dbt"
-      role_arn: arn:aws:iam::833664315823:role/assumerole-test-cross-account
+      database: "barclays_glue_dbt"
       glue_version: "5.0"
       worker_type: G.1X
       workers: 2
