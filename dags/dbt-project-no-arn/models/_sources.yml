@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: optm_eu
+    description: "Existing OPTM EU database with country data"
+    database: optm_eu
+    schema: optm_eu
+    tables:
+      - name: country
+        description: "Country reference data table"
+        columns:
+          - name: countrycode
+            description: "Country code"
+            data_type: binary
+          - name: countryname
+            description: "Country name"
+            data_type: binary

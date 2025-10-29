@@ -1,21 +1,29 @@
-optm_eu_reader:
-  target: dev
-  outputs:
-    dev:
-      type: athena
-      region_name: us-east-2
-      database: optm_eu
-      schema: optm_eu
-      s3_staging_dir: s3://assumerole-s3-glue-dbt-athena/athena-results/
-      work_group: primary
-
 barclays_glue_dbt:
   target: dev
   outputs:
     dev:
-      type: athena
-      region_name: us-east-2
+      type: glue
+      region: us-east-2
+      database: barclays_glue_dbt
+      schema: barclays_glue_dbt
+      location: s3://assumerole-s3-glue-dbt-athena/dbt/barclays_glue_dbt/
+      glue_version: "3.0"
+      worker_type: G.1X
+      workers: 2
+      threads: 1
+      session_provisioning_timeout_in_minutes: 5
+
+optm_eu_reader:
+  target: dev
+  outputs:
+    dev:
+      type: glue
+      region: us-east-2
       database: optm_eu
       schema: optm_eu
-      s3_staging_dir: s3://assumerole-s3-glue-dbt-athena/athena-results/
-      work_group: primary
+      location: s3://philippe-trino/OPTM_EU/
+      glue_version: "3.0"
+      worker_type: G.1X
+      workers: 2
+      threads: 1
+      session_provisioning_timeout_in_minutes: 5
